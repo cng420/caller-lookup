@@ -125,8 +125,8 @@
 
     <script>
         // Initialize Supabase client - REPLACE YOUR_ANON_PUBLIC_KEY_HERE with your actual key
-        const supabaseUrl = SUPABASE_URL
-        const supabaseKey = SUPABASE_ANON_KEY
+        const supabaseUrl = NEXT_PUBLIC_SUPABASE_URL
+        const supabaseKey = NEXT_PUBLIC_SUPABASE_ANON_KEY
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
 
         async function loadContact() {
