@@ -201,8 +201,8 @@
 
     <script>
         // Initialize Supabase client - REPLACE YOUR_ANON_PUBLIC_KEY_HERE with your actual key
-        const supabaseUrl = 'https://djkkwidlbhqlmxlulfmm.supabase.co'
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqa2t3aWRsYmhxbG14bHVsZm1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgxMjU1NTQsImV4cCI6MjA1MzcwMTU1NH0.NfLMGWtY4MbYZ8ino-yb1a3bFWjMK2n7ru7QpUDoT9A'
+        const supabaseUrl = SUPABASE_URL
+        const supabaseKey = SUPABASE_ANON_KEY
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
 
         let isEditMode = false
