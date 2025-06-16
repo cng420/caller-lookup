@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caller Information</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .contact-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .contact-header {
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        .contact-name {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 0;
+        }
+        .contact-title {
+            font-size: 1.2em;
+            color: #7f8c8d;
+            margin: 5px 0;
+        }
+        .contact-detail {
+            display: flex;
+            margin: 15px 0;
+            align-items: center;
+        }
+        .detail-label {
+            font-weight: bold;
+            min-width: 120px;
+            color: #34495e;
+        }
+        .detail-value {
+            color: #2c3e50;
+            flex: 1;
+        }
+        .phone-number {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #27ae60;
+        }
+        .patient-id {
+            background-color: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+        .contact-id {
+            background-color: #e3f2fd;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8em;
+            color: #1976d2;
+        }
+        .department-badge {
+            background-color: #3498db;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.9em;
+        }
+        .loading {
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+            padding: 40px;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            text-decoration: none;
+            text-align: center;
+            flex: 1;
+        }
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="loading">Loading caller information...</div>
+    </div>
+
+    <script>
+        // Initialize Supabase client - REPLACE YOUR_ANON_PUBLIC_KEY_HERE with your actual key
+        const supabaseUrl = 'https://djkkwidlbhqlmxlulfmm.supabase.co'
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqa2t3aWRsYmhxbG14bHVsZm1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgxMjU1NTQsImV4cCI6MjA1MzcwMTU1NH0.NfLMGWtY4MbYZ8ino-yb1a3bFWjMK2n7ru7QpUDoT9A'
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
+
+        async function loadContact() {
+            try {
+                // Get contact ID from URL parameters
+                const urlParams = new URLSearchParams(window.location.search)
+                const contactId = urlParams.get('id')
+
+                if (!contactId) {
+                    throw new Error('No contact ID provided')
+                }
+
+                // Fetch contact details using ContactContactId as primary key
+                const { data: contact, error } = await supabase
+                    .from('contacts')
+                    .select('*')
+                    .eq('ContactContactId', contactId)
+                    .single()
+
+                if (error) throw error
+
+                // Display contact information
+                displayContact(contact)
+
+            } catch (error) {
+                console.error('Error loading contact:', error)
+                document.getElementById('app').innerHTML = `
+                    <div class="error">
+                        Error loading contact information: ${error.message}
+                        <br><br>
+                        <strong>Contact ID:</strong> ${new URLSearchParams(window.location.search).get('id') || 'Not provided'}
+                    </div>
+                `
+            }
+        }
+
+        function displayContact(contact) {
+            const formatPhoneNumber = (phone) => {
+                // Extract just the digits
+                const digits = phone.replace(/\D/g, '')
+                if (digits.startsWith('61')) {
+                    return `+61 ${digits.slice(2, 3)} ${digits.slice(3, 7)} ${digits.slice(7)}`
+                }
+                return phone
+            }
+
+            const getPhoneType = (phone) => {
+                if (phone.includes('MOBILE')) return 'Mobile'
+                if (phone.includes('WORK')) return 'Work'
+                return 'Phone'
+            }
+
+            document.getElementById('app').innerHTML = `
+                <div class="contact-card">
+                    <div class="contact-header">
+                        <h1 class="contact-name">
+                            ${contact.ContactFirstName || ''} ${contact.ContactLastName || ''}
+                            ${contact.ContactNickName && contact.ContactNickName !== contact.ContactFirstName ? 
+                              `(${contact.ContactNickName})` : ''}
+                        </h1>
+                        <div class="contact-title">${contact.ContactJobTitle || ''}</div>
+                        ${contact.ContactDepartment ? `
+                            <span class="department-badge">${contact.ContactDepartment}</span>
+                        ` : ''}
+                        <div style="margin-top: 10px;">
+                            <span class="contact-id">ID: ${contact.ContactContactId}</span>
+                        </div>
+                    </div>
+
+                    <div class="contact-detail">
+                        <div class="detail-label">${getPhoneType(contact.ContactPhoneNumbers)}:</div>
+                        <div class="detail-value phone-number">
+                            ${formatPhoneNumber(contact.ContactPhoneNumbers)}
+                        </div>
+                    </div>
+
+                    ${contact.ContactEmails ? `
+                        <div class="contact-detail">
+                            <div class="detail-label">Email:</div>
+                            <div class="detail-value">
+                                <a href="mailto:${contact.ContactEmails}">${contact.ContactEmails}</a>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${contact.ContactLocation ? `
+                        <div class="contact-detail">
+                            <div class="detail-label">Location:</div>
+                            <div class="detail-value">${contact.ContactLocation}</div>
+                        </div>
+                    ` : ''}
+
+                    ${contact.ContactCustomField1 ? `
+                        <div class="contact-detail">
+                            <div class="detail-label">Patient ID:</div>
+                            <div class="detail-value">
+                                <span class="patient-id">${contact.ContactCustomField1}</span>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${contact.ContactCustomField2 ? `
+                        <div class="contact-detail">
+                            <div class="detail-label">Notes:</div>
+                            <div class="detail-value">${contact.ContactCustomField2}</div>
+                        </div>
+                    ` : ''}
+
+                    ${contact.ContactCustomField3 ? `
+                        <div class="contact-detail">
+                            <div class="detail-label">Additional Info:</div>
+                            <div class="detail-value">${contact.ContactCustomField3}</div>
+                        </div>
+                    ` : ''}
+
+                    <div class="action-buttons">
+                        <a href="contact-form.html?edit=${encodeURIComponent(contact.ContactContactId)}" class="btn btn-primary">Edit Contact</a>
+                        <button onclick="window.close()" class="btn btn-secondary">Close</button>
+                    </div>
+                </div>
+            `
+        }
+
+        // Load contact when page loads
+        loadContact()
+    </script>
+</body>
+</html>

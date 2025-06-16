@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Information</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .form-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .form-title {
+            font-size: 1.8em;
+            color: #2c3e50;
+            margin: 0;
+        }
+        .form-subtitle {
+            color: #7f8c8d;
+            margin: 10px 0 0 0;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #34495e;
+        }
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-right: 10px;
+        }
+        .btn-primary {
+            background-color: #27ae60;
+            color: white;
+        }
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .required {
+            color: #e74c3c;
+        }
+        .readonly-field {
+            background-color: #f8f9fa;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-card">
+        <div class="form-header">
+            <h1 class="form-title" id="formTitle">Add New Contact</h1>
+            <p class="form-subtitle" id="formSubtitle">Please fill in the contact details</p>
+        </div>
+
+        <form id="contactForm">
+            <div class="form-group">
+                <label class="form-label" for="ContactContactId">Contact ID</label>
+                <input type="text" id="ContactContactId" name="ContactContactId" class="form-input readonly-field" readonly>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="ContactFirstName">First Name <span class="required">*</span></label>
+                    <input type="text" id="ContactFirstName" name="ContactFirstName" class="form-input" required maxlength="47">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="ContactLastName">Last Name</label>
+                    <input type="text" id="ContactLastName" name="ContactLastName" class="form-input" maxlength="22">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="ContactNickName">Nickname <span class="required">*</span></label>
+                <input type="text" id="ContactNickName" name="ContactNickName" class="form-input" required maxlength="28">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="ContactPhoneNumbers">Phone Number <span class="required">*</span></label>
+                <input type="text" id="ContactPhoneNumbers" name="ContactPhoneNumbers" class="form-input" required readonly maxlength="18">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="ContactEmails">Email <span class="required">*</span></label>
+                <input type="email" id="ContactEmails" name="ContactEmails" class="form-input" required maxlength="43">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="ContactJobTitle">Job Title <span class="required">*</span></label>
+                    <select id="ContactJobTitle" name="ContactJobTitle" class="form-select" required>
+                        <option value="">Select Job Title</option>
+                        <option value="Patient">Patient</option>
+                        <option value="Dispensary">Dispensary</option>
+                        <option value="Staff">Staff</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="ContactDepartment">Department <span class="required">*</span></label>
+                    <select id="ContactDepartment" name="ContactDepartment" class="form-select" required>
+                        <option value="">Select Department</option>
+                        <option value="Green Heart Medical Patients">Green Heart Medical Patients</option>
+                        <option value="Dispense Direct Patients">Dispense Direct Patients</option>
+                        <option value="CNG Pharmacy Accounts">CNG Pharmacy Accounts</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="ContactLocation">Location</label>
+                <input type="text" id="ContactLocation" name="ContactLocation" class="form-input" maxlength="38">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="ContactCustomField1">Patient/Customer ID <span class="required">*</span></label>
+                <input type="text" id="ContactCustomField1" name="ContactCustomField1" class="form-input" required maxlength="15">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="ContactCustomField2">Notes</label>
+                <textarea id="ContactCustomField2" name="ContactCustomField2" class="form-input" rows="3" maxlength="30"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="ContactCustomField3">Additional Information</label>
+                <textarea id="ContactCustomField3" name="ContactCustomField3" class="form-input" rows="2" maxlength="30"></textarea>
+            </div>
+
+            <div style="margin-top: 30px;">
+                <button type="submit" class="btn btn-primary" id="submitBtn">Save Contact</button>
+                <button type="button" class="btn btn-secondary" onclick="window.close()">Cancel</button>
+            </div>
+        </form>
+
+        <div id="message"></div>
+    </div>
+
+    <script>
+        // Initialize Supabase client - REPLACE YOUR_ANON_PUBLIC_KEY_HERE with your actual key
+        const supabaseUrl = 'https://djkkwidlbhqlmxlulfmm.supabase.co'
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqa2t3aWRsYmhxbG14bHVsZm1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgxMjU1NTQsImV4cCI6MjA1MzcwMTU1NH0.NfLMGWtY4MbYZ8ino-yb1a3bFWjMK2n7ru7QpUDoT9A'
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
+
+        let isEditMode = false
+        let contactId = null
+
+        async function initializeForm() {
+            const urlParams = new URLSearchParams(window.location.search)
+            const phoneParam = urlParams.get('phone')
+            const editParam = urlParams.get('edit')
+
+            if (editParam) {
+                // Edit mode
+                isEditMode = true
+                contactId = editParam
+                await loadContactForEdit(editParam)
+            } else if (phoneParam) {
+                // New contact mode
+                const cleanedPhone = phoneParam.replace(/\D/g, '')
+                document.getElementById('ContactPhoneNumbers').value = cleanedPhone + ' MOBILE'
+                
+                // Generate a new UUID for ContactContactId
+                const newContactId = generateUUID()
+                document.getElementById('ContactContactId').value = newContactId
+                
+                // Auto-populate nickname with first name when first name changes
+                document.getElementById('ContactFirstName').addEventListener('input', function() {
+                    if (!isEditMode) {
+                        document.getElementById('ContactNickName').value = this.value
+                    }
+                })
+            }
+        }
+
+        async function loadContactForEdit(contactId) {
+            try {
+                const { data: contact, error } = await supabase
+                    .from('contacts')
+                    .select('*')
+                    .eq('ContactContactId', contactId)
+                    .single()
+
+                if (error) throw error
+
+                // Update form title and subtitle
+                document.getElementById('formTitle').textContent = 'Edit Contact'
+                document.getElementById('formSubtitle').textContent = 'Update contact information'
+                document.getElementById('submitBtn').textContent = 'Update Contact'
+
+                // Populate form fields
+                document.getElementById('ContactContactId').value = contact.ContactContactId || ''
+                document.getElementById('ContactFirstName').value = contact.ContactFirstName || ''
+                document.getElementById('ContactLastName').value = contact.ContactLastName || ''
+                document.getElementById('ContactNickName').value = contact.ContactNickName || ''
+                document.getElementById('ContactPhoneNumbers').value = contact.ContactPhoneNumbers || ''
+                document.getElementById('ContactEmails').value = contact.ContactEmails || ''
+                document.getElementById('ContactJobTitle').value = contact.ContactJobTitle || ''
+                document.getElementById('ContactDepartment').value = contact.ContactDepartment || ''
+                document.getElementById('ContactLocation').value = contact.ContactLocation || ''
+                document.getElementById('ContactCustomField1').value = contact.ContactCustomField1 || ''
+                document.getElementById('ContactCustomField2').value = contact.ContactCustomField2 || ''
+                document.getElementById('ContactCustomField3').value = contact.ContactCustomField3 || ''
+
+            } catch (error) {
+                showMessage('Error loading contact: ' + error.message, 'error')
+            }
+        }
+
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        document.getElementById('contactForm').addEventListener('submit', async (e) => {
+            e.preventDefault()
+            
+            const submitBtn = document.getElementById('submitBtn')
+            submitBtn.disabled = true
+            submitBtn.textContent = isEditMode ? 'Updating...' : 'Saving...'
+
+            try {
+                const formData = new FormData(e.target)
+                const contactData = {
+                    ContactContactId: formData.get('ContactContactId'),
+                    ContactFirstName: formData.get('ContactFirstName'),
+                    ContactLastName: formData.get('ContactLastName'),
+                    ContactNickName: formData.get('ContactNickName'),
+                    ContactPhoneNumbers: formData.get('ContactPhoneNumbers'),
+                    ContactEmails: formData.get('ContactEmails'),
+                    ContactJobTitle: formData.get('ContactJobTitle'),
+                    ContactDepartment: formData.get('ContactDepartment'),
+                    ContactLocation: formData.get('ContactLocation'),
+                    ContactCustomField1: formData.get('ContactCustomField1'),
+                    ContactCustomField2: formData.get('ContactCustomField2'),
+                    ContactCustomField3: formData.get('ContactCustomField3')
+                }
+
+                let result
+                if (isEditMode) {
+                    // Update existing contact
+                    result = await supabase
+                        .from('contacts')
+                        .update(contactData)
+                        .eq('ContactContactId', contactId)
+                } else {
+                    // Insert new contact
+                    result = await supabase
+                        .from('contacts')
+                        .insert([contactData])
+                }
+
+                if (result.error) throw result.error
+
+                showMessage(
+                    isEditMode ? 'Contact updated successfully!' : 'Contact saved successfully!',
+                    'success'
+                )
+
+                // Close window after 2 seconds
+                setTimeout(() => {
+                    window.close()
+                }, 2000)
+
+            } catch (error) {
+                console.error('Full error object:', error)
+                showMessage('Error saving contact: ' + error.message, 'error')
+            } finally {
+                submitBtn.disabled = false
+                submitBtn.textContent = isEditMode ? 'Update Contact' : 'Save Contact'
+            }
+        })
+
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message')
+            messageDiv.className = type === 'error' ? 'error-message' : 'success-message'
+            messageDiv.textContent = text
+            
+            setTimeout(() => {
+                messageDiv.textContent = ''
+                messageDiv.className = ''
+            }, 5000)
+        }
+
+        // Initialize form on page load
+        initializeForm()
+    </script>
+</body>
+</html>
